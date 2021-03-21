@@ -1,0 +1,158 @@
+server:
+  port: 8847
+  tomcat:
+    max-http-form-post-size: 10MB
+    max-swallow-size: 10MB
+spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: seata-student
+#==============================================
+#druid\u8FDE\u63A5\u6C60\u914D\u7F6E
+#==============================================
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/db0?zeroDateTimeBehavior=CONVERT_TO_NULL&useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&allowMultiQueries=true&useSSL=false&serverTimezone=GMT%2B8&autoReconnect=true&autoReconnectForPools=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    name: ${spring.application.name}-db
+    druid:
+      #\u8FDE\u63A5\u5F52\u8FD8\u65F6\u81EA\u52A8\u63D0\u4EA4\u672A\u63D0\u4EA4\u7684\u4E8B\u52A1
+      default-auto-commit: false
+      #\u6700\u5927\u6709\u6548\u8FDE\u63A5\u6570
+      max-active: 50
+      #\u521D\u59CB\u5316\u5927\u5C0F
+      initial-size: 20
+      #\u914D\u7F6E\u83B7\u53D6\u8FDE\u63A5\u7B49\u5F85\u8D85\u65F6\u7684\u65F6\u95F4
+      max-wait: 60000
+      #\u6700\u5C0F\u7A7A\u95F2\u8FDE\u63A5\u6570
+      min-idle: 5
+      #\u914D\u7F6E\u95F4\u9694\u591A\u4E45\u624D\u8FDB\u884C\u4E00\u6B21\u68C0\u6D4B\uFF0C\u68C0\u6D4B\u9700\u8981\u5173\u95ED\u7684\u7A7A\u95F2\u8FDE\u63A5\uFF0C\u5355\u4F4D\u662F\u6BEB\u79D2
+      time-between-eviction-runs-millis: 60000
+      #\u914D\u7F6E\u4E00\u4E2A\u8FDE\u63A5\u5728\u6C60\u4E2D\u6700\u5C0F\u751F\u5B58\u7684\u65F6\u95F4\uFF0C\u5355\u4F4D\u662F\u6BEB\u79D2
+      min-evictable-idle-time-millis: 30000
+      #\u914D\u7F6E\u4E00\u4E2A\u8FDE\u63A5\u5728\u6C60\u4E2D\u6700\u5927\u751F\u5B58\u7684\u65F6\u95F4\uFF0C\u5355\u4F4D\u662F\u6BEB\u79D2
+      max-evictable-idle-time-millis: 300000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      #\u6253\u5F00PSCache\uFF0C\u5E76\u4E14\u6307\u5B9A\u6BCF\u4E2A\u8FDE\u63A5\u4E0APSCache\u7684\u5927\u5C0F
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      name: ${spring.application.name}-pool
+      #\u914D\u7F6E\u76D1\u63A7\u7EDF\u8BA1\u62E6\u622A\u7684filters\uFF0C\u53BB\u6389\u540E\u76D1\u63A7\u754C\u9762sql\u65E0\u6CD5\u7EDF\u8BA1\uFF0C'wall'\u7528\u4E8E\u9632\u706B\u5899
+      filters: stat,wall,slf4j
+      #\u901A\u8FC7connectProperties\u5C5E\u6027\u6765\u6253\u5F00mergeSql\u529F\u80FD\uFF1B\u6162SQL\u8BB0\u5F55
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+      #\u914D\u7F6EDruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
+        #\u914D\u7F6EDruidStatViewServlet
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        #IP\u767D\u540D\u5355(\u6CA1\u6709\u914D\u7F6E\u6216\u8005\u4E3A\u7A7A\uFF0C\u5219\u5141\u8BB8\u6240\u6709\u8BBF\u95EE)
+        allow:
+        #IP\u9ED1\u540D\u5355 (\u5B58\u5728\u5171\u540C\u65F6\uFF0Cdeny\u4F18\u5148\u4E8Eallow)
+        #deny: 127.0.0.1
+        #\u767B\u5F55\u540D
+        login-username: admin
+        #\u767B\u9646\u5BC6\u7801
+        login-password: admin123
+      validation-query: select 1
+#============================================
+#mybatis-plus\u914D\u7F6E
+#============================================
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    use-actual-param-name: true
+  type-aliases-package: com.jzfq.seata.student.model
+  mapper-locations: classpath*:/mappers/*.xml
+  global-config:
+    db-config:
+      select-strategy: not_empty
+      update-strategy: not_null
+      insert-strategy: not_null
+      id-type: assign_id
+#=============================================
+# seata\u5206\u5E03\u5F0F\u4E8B\u52A1\u914D\u7F6E
+#=============================================
+seata:
+  config:
+    type: nacos
+    nacos:
+      namespace: dev
+      server-addr: localhost:8848
+  application-id: ${spring.application.name}
+  tx-service-group: seata_student_tx_group
+  registry:
+    type: nacos
+    nacos:
+      namespace: dev
+      server-addr: localhost:8848
+      cluster: default
+  transport:
+    type: TCP
+    server: NIO
+    heartbeat: true
+    enable-client-batch-send-request: true
+    thread-factory:
+      boss-thread-prefix: NettyBoss
+      worker-thread-prefix: NettyServerNIOWorker
+      server-executor-thread-prefix: NettyServerBizHandler
+      share-boss-worker: false
+      client-selector-thread-prefix: NettyClientSelector
+      client-selector-thread-size: 5
+      client-worker-thread-prefix: NettyClientWorkerThread
+      #netty boss thread size,will not be used for UDT
+      boss-thread-size: 5
+      #auto default pin or 8
+      worker-thread-size: 8
+    shutdown:
+      #when destroy server, wait seconds
+      wait: 3
+    serialization: seata
+    compressor: none
+  service:
+    disable-global-transaction: false
+    vgroup-mapping: seata-server
+    enable-degrade: false
+  client:
+    rm-async-commit-buffer-limit: 10000
+    rm:
+      lock:
+        lock-retry-interval: 10
+        lock-retry-times: 30
+        lock-retry-policy-branch-rollback-on-conflict: true
+    rm-report-retry-count: 5
+    rm-table-meta-check-enable: false
+    rm-report-success-enable: true
+    tm-commit-retry-count: 5
+    tm-rollback-retry-count: 5
+    undo:
+      undo-data-validation: true
+      undo-log-serialization: jackson
+      undo-log-table: undo_logo
+    log:
+      exception-rate: 100
+#==============================================
+#hystrix\u914D\u7F6E
+#==============================================
+feign:
+  hystrix:
+    enabled: true
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
